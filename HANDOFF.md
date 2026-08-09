@@ -15,7 +15,11 @@ Milestones 1–3 are implemented in this snapshot.
 
 Milestone 3 includes the provider-neutral Adaptive Runtime, runtime/provider contracts, model resolution, resource governance, trace/telemetry storage, recovery/circuit-breaker behavior, a Codex App Server adapter boundary, fake/replay/chaos harnesses, and an opt-in live Codex smoke path.
 
-The last verified M3 snapshot reported 162/162 offline tests passing. The live Codex smoke was not verified in the ChatGPT sandbox because the `codex` binary was unavailable there. Codex should re-run baseline verification in its own environment before M4 implementation.
+A fresh transition baseline on 2026-08-09 passed **162/162 offline tests with 0 failures**, and `aes validate examples/workflow.yaml` returned `valid Workflow: engineering-default`.
+
+The ChatGPT sandbox did not have `pnpm` installed and could not fetch packages from the registry. Verification therefore used the already-installed Node 22.16.0 / TypeScript 5.8.3 toolchain plus temporary local workspace symlinks; no production source was changed for this workaround. Codex should run the canonical pnpm-based baseline in its own environment before M4 implementation.
+
+The live Codex smoke was not verified in the earlier ChatGPT sandbox because the `codex` binary was unavailable there. Codex should run the opt-in live smoke when its environment supports it.
 
 Milestone 4 architecture has been discussed in depth and explicitly approved by the user.
 
