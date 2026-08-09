@@ -1,7 +1,7 @@
 # AES Milestone 4 — Adaptive Learning & Knowledge Runtime Design
 
 Date: 2026-08-09
-Status: Approved design, pending user review of written spec
+Status: Approved
 Builds on: AES Milestone 3 — Adaptive Runtime & Codex Provider
 Primary theme: Evidence-driven adaptive behavior with reversible project-local learning
 
