@@ -1,0 +1,15 @@
+kind: Workflow
+version: 1
+name: engineering-default
+initial: discovery
+states:
+  discovery:
+    next: [planning]
+  planning:
+    next: [execution, discovery]
+  execution:
+    next: [verification, planning]
+  verification:
+    next: [completed, execution, planning]
+  completed:
+    next: []

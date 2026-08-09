@@ -1,0 +1,9 @@
+kind: Playbook
+version: 1
+name: bugfix
+steps:
+  - reproduce
+  - inspect
+  - hypothesize
+  - patch
+  - verify

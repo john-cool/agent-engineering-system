@@ -1,0 +1,4 @@
+{"method":"turn/started","params":{"turnId":"turn-approval"}}
+{"id":"approval-1","method":"item/commandExecution/requestApproval","params":{"itemId":"tool-1","kind":"command"}}
+{"id":"approval-1","result":{"decision":"approved"}}
+{"method":"turn/completed","params":{"turnId":"turn-approval","status":"completed"}}

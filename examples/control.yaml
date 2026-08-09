@@ -1,0 +1,10 @@
+control:
+  default: assisted
+  actions:
+    modelRouting: autonomous
+    fastMode: autonomous
+    toolExecution: autonomous
+    contextCompaction: autonomous
+    handoffCreation: autonomous
+    memoryPromotion: assisted
+    conversationTransition: assisted

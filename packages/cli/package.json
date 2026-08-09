@@ -1,0 +1,20 @@
+{
+  "name": "@aes/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "aes": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "dependencies": {
+    "@aes/spec": "workspace:*",
+    "@aes/kernel": "workspace:*",
+    "@aes/runtime-sdk": "workspace:*",
+    "@aes/runtime": "workspace:*",
+    "@aes/adapter-codex": "workspace:*"
+  }
+}

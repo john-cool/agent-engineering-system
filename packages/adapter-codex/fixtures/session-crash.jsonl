@@ -1,0 +1,4 @@
+{"method":"turn/started","params":{"turnId":"turn-crash"}}
+{"method":"item/completed","params":{"itemId":"tool-1","type":"commandExecution","status":"completed"}}
+{"method":"provider/crashed","params":{"failurePoint":"after_tool_completion"}}
+{"id":2,"method":"thread/resume","result":{"thread":{"id":"thread-1"}}}
