@@ -10,6 +10,7 @@ import type {
   RuntimeEvent,
   RuntimeFailureEvidence,
   RuntimeObservationSink,
+  RuntimeLearningObserver,
   RuntimeSession,
   RuntimeTurnRequest,
   RuntimeVerificationBridge,
@@ -66,6 +67,7 @@ export interface AdaptiveRuntimeOptions {
   verification?: RuntimeVerificationBridge;
   observations?: RuntimeObservationSink;
   resources?: ResourcePolicyEngine;
+  learning?: RuntimeLearningObserver;
 }
 
 const RESOURCE_RANK = { allow: 0, warn: 1, throttle: 2, deny: 3 } as const;
@@ -448,6 +450,7 @@ export class AdaptiveRuntime {
     };
     await this.options.traceStore.append(trace);
     this.options.observations?.emit({ type: 'experience.trace.recorded', traceId: trace.traceId });
+    try { await this.options.learning?.observe(trace); } catch { /* learning is advisory and failure-isolated */ }
 
     this.#activeSessions.delete(sessionId);
     await session.close();

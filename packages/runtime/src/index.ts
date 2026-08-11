@@ -24,3 +24,4 @@ export * from './interaction-learning-coordinator.js';
 export * from './replay-evaluation-runner.js';
 export * from './controlled-evaluation-runner.js';
 export * from './pattern-analysis-coordinator.js';
+export * from './adaptive-learning-coordinator.js';
