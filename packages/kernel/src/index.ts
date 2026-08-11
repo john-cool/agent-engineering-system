@@ -22,6 +22,7 @@ export * from './experience-metrics.js';
 export * from './experience-miner.js';
 
 export * from './evaluation-gate.js';
+export * from './evaluation-engine.js';
 
 export * from './memory-store.js';
 
