@@ -28,6 +28,12 @@ export * from './shadow-evaluator.js';
 export * from './regression-monitor.js';
 export * from './knowledge-migration.js';
 export * from './knowledge-index.js';
+export * from './knowledge-compiler.js';
+export * from './knowledge-retriever.js';
+export * from './knowledge-privacy.js';
+export * from './memory-retention.js';
+export * from './memory-lint.js';
+export * from './memory-maintenance.js';
 
 export * from './memory-store.js';
 

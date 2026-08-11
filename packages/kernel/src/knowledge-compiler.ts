@@ -1,6 +1,17 @@
-import type { EvaluationDecision, KnowledgeMetadata } from '@aes/spec';
+import type { EvaluationDecision, KnowledgeMetadata, KnowledgeRecord } from '@aes/spec';
+import { applicabilityKey } from './task-signature.js';
+
+export interface TypedCompileResult { outcome: 'create' | 'merge' | 'supersede' | 'conflict'; record?: KnowledgeRecord; conflictingIds?: string[]; }
 
 export class KnowledgeCompiler {
+  compile(incoming: KnowledgeRecord, existing: readonly KnowledgeRecord[]): TypedCompileResult {
+    const same = existing.filter((record) => record.key === incoming.key && record.scope === incoming.scope && applicabilityKey(record.applicability ?? {}) === applicabilityKey(incoming.applicability ?? {}));
+    if (!same.length) return { outcome: 'create', record: incoming };
+    const exact = same[0]!;
+    if (exact.statement === incoming.statement) return { outcome: 'merge', record: { ...exact, evidenceRefs: [...new Set([...exact.evidenceRefs, ...incoming.evidenceRefs])].sort(), evaluationRefs: [...new Set([...exact.evaluationRefs, ...incoming.evaluationRefs])].sort(), updatedAt: incoming.updatedAt > exact.updatedAt ? incoming.updatedAt : exact.updatedAt } };
+    if (incoming.relations.some((relation) => relation.kind === 'supersedes' && relation.targetId === exact.id)) return { outcome: 'supersede', record: incoming };
+    return { outcome: 'conflict', conflictingIds: [exact.id, incoming.id] };
+  }
   validateScope(input: {
     sourceScope: KnowledgeMetadata['scope'];
     targetScope: KnowledgeMetadata['scope'];

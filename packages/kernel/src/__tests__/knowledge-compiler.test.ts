@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { KnowledgeCompiler } from '../knowledge-compiler.js';
+import type { KnowledgeRecord } from '@aes/spec';
 
 const metadata = {
   id: 'k1',
@@ -11,6 +12,23 @@ const metadata = {
   updatedAt: '2026-08-08T00:00:00Z',
   evidenceRefs: ['trace-1']
 };
+
+const record = (overrides: Partial<KnowledgeRecord> = {}): KnowledgeRecord => ({
+  id: 'K1', key: 'routing.ts.execution', kind: 'decision', scope: 'project', status: 'active', statement: 'Prefer balanced.',
+  applicability: { stage: 'execution', language: 'typescript' }, evidenceRefs: ['e1'], evaluationRefs: [],
+  provenance: { source: 'compiler', refs: ['e1'] }, relations: [], createdAt: '2026-08-08T00:00:00Z', updatedAt: '2026-08-08T00:00:00Z', ...overrides
+});
+
+test('typed compiler merges exact knowledge, coexists by applicability, and reports conflicts', () => {
+  const compiler = new KnowledgeCompiler();
+  const existing = record();
+  assert.equal(compiler.compile(existing, []).outcome, 'create');
+  const merged = compiler.compile(record({ id: 'K2', evidenceRefs: ['e2'] }), [existing]);
+  assert.equal(merged.outcome, 'merge');
+  assert.deepEqual(merged.record?.evidenceRefs.sort(), ['e1', 'e2']);
+  assert.equal(compiler.compile(record({ id: 'K3', applicability: { stage: 'planning', language: 'typescript' }, statement: 'Prefer powerful.' }), [existing]).outcome, 'create');
+  assert.equal(compiler.compile(record({ id: 'K4', statement: 'Prefer powerful.' }), [existing]).outcome, 'conflict');
+});
 
 test('project-specific knowledge cannot silently promote to user scope', () => {
   const compiler = new KnowledgeCompiler();

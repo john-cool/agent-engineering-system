@@ -4,6 +4,7 @@ import type { KnowledgeMetadata, KnowledgePacket, KnowledgeQuery, KnowledgeRecor
 import type { KnowledgeSearchResult, KnowledgeStore, LearningArtifactStore, TypedKnowledgeStore } from '@aes/runtime-sdk';
 import { migrateLegacyKnowledgeDirectory } from './knowledge-migration.js';
 import { renderIndexJson, renderIndexMarkdown } from './knowledge-index.js';
+import { KnowledgeRetriever } from './knowledge-retriever.js';
 
 const ROOT_FOLDERS = ['raw', 'knowledge', 'decisions', 'experience', 'evals', 'overlays'] as const;
 const NESTED_FOLDERS = ['raw/traces', 'experience/candidates', 'experience/shadow', 'experience/active', 'experience/interactions', 'experience/authority-candidates', 'decisions/authority', 'overlays/project', 'overlays/user'] as const;
@@ -81,19 +82,7 @@ export class MemoryStore implements KnowledgeStore<KnowledgeMetadata>, TypedKnow
     await this.rebuildIndexes();
   }
 
-  async queryKnowledge(query: KnowledgeQuery): Promise<KnowledgePacket> {
-    const records = (await this.listRecords()).filter((record) => record.status === 'active' && (record.scope === query.scope || (query.scope === 'project' && record.scope === 'user')))
-      .filter((record) => !query.kinds || query.kinds.includes(record.kind)).filter((record) => !query.statuses || query.statuses.includes(record.status));
-    const entries: KnowledgePacket['entries'] = []; let estimatedTokens = 0;
-    for (const record of records) {
-      if (entries.length >= query.maxRecords) break;
-      const tokens = Math.ceil(record.statement.length / 4);
-      if (estimatedTokens + tokens > query.maxEstimatedTokens) continue;
-      entries.push({ id: record.id, path: `knowledge/${record.kind}/${record.id}.md`, statement: record.statement, score: 0, estimatedTokens: tokens, reasons: ['typed-store compatibility retrieval'], record });
-      estimatedTokens += tokens;
-    }
-    return { entries, estimatedTokens, truncated: entries.length < records.length };
-  }
+  async queryKnowledge(query: KnowledgeQuery): Promise<KnowledgePacket> { return new KnowledgeRetriever().retrieve(await this.listRecords(), query); }
 
   async rebuildIndexes(): Promise<void> { const records = await this.listRecords(); await writeFile(join(this.#aesRoot, 'index.json'), renderIndexJson(records)); await writeFile(join(this.#aesRoot, 'index.md'), renderIndexMarkdown(records)); }
 

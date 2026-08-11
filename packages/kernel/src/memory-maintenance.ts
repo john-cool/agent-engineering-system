@@ -1,0 +1,9 @@
+import type { KnowledgeRecord } from '@aes/spec';
+import { renderIndexMarkdown } from './knowledge-index.js';
+import { MemoryLint, type MemoryLintBudget } from './memory-lint.js';
+import { MemoryStore } from './memory-store.js';
+export class MemoryMaintenanceService {
+  constructor(private readonly deps: { store: MemoryStore; lint: MemoryLint; budget: MemoryLintBudget; staleBefore?: () => string | undefined }) {}
+  async incremental(): Promise<void> { const records = await this.deps.store.listRecords(); const staleBefore = this.deps.staleBefore?.(); const findings = this.deps.lint.inspect({ records, budget: this.deps.budget, renderedIndex: renderIndexMarkdown(records), ...(staleBefore ? { staleBefore } : {}) }); if (findings.some((finding) => finding.code === 'index_budget')) await this.deps.store.rebuildIndexes(); }
+  async full(): Promise<void> { const records = await this.deps.store.listRecords(); const groups = new Map<string, KnowledgeRecord[]>(); for (const record of records) { const key = JSON.stringify([record.key, record.scope, record.applicability ?? {}, record.statement]); groups.set(key, [...(groups.get(key) ?? []), record]); } for (const group of groups.values()) { if (group.length < 2) continue; const sorted = [...group].sort((a, b) => a.id.localeCompare(b.id)); const canonical = sorted[0]!; await this.deps.store.putRecord({ ...canonical, evidenceRefs: [...new Set(sorted.flatMap((record) => record.evidenceRefs))].sort(), evaluationRefs: [...new Set(sorted.flatMap((record) => record.evaluationRefs))].sort(), updatedAt: sorted.map((record) => record.updatedAt).sort().at(-1)! }); for (const duplicate of sorted.slice(1)) await this.deps.store.putRecord({ ...duplicate, status: 'superseded', supersededBy: canonical.id }); } await this.deps.store.rebuildIndexes(); await this.incremental(); }
+}

@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { KnowledgeRetriever } from '../knowledge-retriever.js';
+import type { KnowledgeRecord } from '@aes/spec';
+const make = (id: string, statement: string): KnowledgeRecord => ({ id, key: `routing.${id}`, kind: 'decision', scope: 'project', status: 'active', statement, applicability: { stage: 'execution', language: 'typescript' }, evidenceRefs: ['e'], evaluationRefs: [], provenance: { source: 'compiler', refs: ['e'] }, relations: [], createdAt: '2026-08-08T00:00:00Z', updatedAt: '2026-08-08T00:00:00Z' });
+test('retrieval filters applicability and enforces deterministic budgets', () => { const packet = new KnowledgeRetriever().retrieve([make('a', 'typescript execution routing'), make('b', 'typescript execution fallback'), { ...make('c', 'planning only'), applicability: { stage: 'planning' } }], { text: 'typescript execution routing', scope: 'project', signature: { taskClass: 'implementation', stage: 'execution', language: 'typescript' }, statuses: ['active'], maxRecords: 2, maxEstimatedTokens: 80 }); assert.ok(packet.entries.length <= 2); assert.ok(packet.estimatedTokens <= 80); assert.deepEqual(packet.entries.map((entry) => entry.id), ['a', 'b']); });
