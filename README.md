@@ -4,7 +4,9 @@ AES is a vendor-neutral specification and TypeScript reference runtime for engin
 
 Milestone 3 adds a provider-neutral **Adaptive Runtime** and the first real provider implementation, **Codex App Server**, while preserving the rule that AES core/kernel never depends on a concrete model vendor.
 
-Milestone 4 adds typed knowledge, bounded adaptive learning, shadow evaluation, regression rollback, and scoped authority evidence. Learning is advisory: offline tests never require a live provider, and live Codex integration remains opt-in.
+Milestone 4 adds typed knowledge, bounded adaptive learning, shadow evaluation, regression rollback, scoped authority evidence, and project-local memory maintenance. Learning is advisory: offline tests never require a live provider, and live Codex integration remains opt-in.
+
+The repository is organized as an executable reference implementation of the approved AES architecture. Start with the [documentation overview](docs/README.md) for the mental model, lifecycle, configuration, and end-to-end decision flow.
 
 ## Architecture
 
@@ -163,7 +165,7 @@ The reference implementation itself keeps the default test suite offline and det
 
 ## Offline verification
 
-A full Milestone 3 offline gate can be run without Codex or API credentials:
+A full offline gate can be run without Codex or API credentials:
 
 ```bash
 rm -rf packages/*/dist
@@ -203,4 +205,4 @@ If the Codex binary/account is unavailable, the live test is reported as **SKIPP
 
 ## Scope boundary
 
-Milestone 3 deliberately does not include Claude/Gemini/Cursor providers, a dynamic plugin marketplace, distributed runtime supervision, Redis/PostgreSQL resource policies, a hosted telemetry backend, dashboard UI, automatic workflow decomposition, or model fine-tuning. Those can be added behind the provider/storage/policy contracts once real usage demonstrates the need.
+The current implementation deliberately does not include second live-provider adapters, a dynamic plugin marketplace, vector or graph databases, contextual-bandit exploration, distributed runtime supervision, a hosted control plane/dashboard, automatic workflow decomposition, or model fine-tuning. These can be added behind the existing provider, storage, and policy contracts if real usage demonstrates the need.
