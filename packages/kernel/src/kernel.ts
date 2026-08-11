@@ -142,10 +142,18 @@ export class AESKernel {
 
   private capabilityAvailable(action: ActionRequest['type']): boolean {
     if (action === 'handoffCreation' || action === 'modelQualityDegradation' || action === 'resourceBudgetOverride') return true;
+    if (action === 'controlledEvaluation' || action === 'controlledEvaluationBudgetOverride') return false;
     const capabilities = this.adapter.getCapabilities?.();
     if (!capabilities) return false;
     const mapping: Record<
-      Exclude<ActionRequest['type'], 'handoffCreation' | 'modelQualityDegradation' | 'resourceBudgetOverride'>,
+      Exclude<
+        ActionRequest['type'],
+        | 'handoffCreation'
+        | 'modelQualityDegradation'
+        | 'resourceBudgetOverride'
+        | 'controlledEvaluation'
+        | 'controlledEvaluationBudgetOverride'
+      >,
       keyof RuntimeCapabilities
     > = {
       modelRouting: 'modelRouting',

@@ -12,5 +12,6 @@ export * from './context.js';
 export * from './handoff.js';
 
 export * from './learning.js';
+export * from './knowledge.js';
 
 export * from './runtime.js';

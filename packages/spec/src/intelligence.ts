@@ -21,7 +21,9 @@ export const CONTROL_ACTION_TYPES = [
   'memoryPromotion',
   'conversationTransition',
   'modelQualityDegradation',
-  'resourceBudgetOverride'
+  'resourceBudgetOverride',
+  'controlledEvaluation',
+  'controlledEvaluationBudgetOverride'
 ] as const;
 export type ControlActionType = (typeof CONTROL_ACTION_TYPES)[number];
 
@@ -81,7 +83,7 @@ export interface ControlDecision {
 }
 
 export type RuntimeCapabilityName =
-  | ControlActionType
+  | Exclude<ControlActionType, 'controlledEvaluation' | 'controlledEvaluationBudgetOverride'>
   | 'contextTelemetry'
   | 'tokenTelemetry'
   | 'handoffInjection'
