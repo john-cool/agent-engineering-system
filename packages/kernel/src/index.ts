@@ -34,6 +34,8 @@ export * from './knowledge-privacy.js';
 export * from './memory-retention.js';
 export * from './memory-lint.js';
 export * from './memory-maintenance.js';
+export * from './interruption-scheduler.js';
+export * from './rejection-suppression.js';
 
 export * from './memory-store.js';
 
