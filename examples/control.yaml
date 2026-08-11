@@ -8,3 +8,5 @@ control:
     handoffCreation: autonomous
     memoryPromotion: assisted
     conversationTransition: assisted
+    controlledEvaluation: autonomous
+    controlledEvaluationBudgetOverride: assisted

@@ -1,0 +1,37 @@
+learning:
+  enabled: true
+  projectAutoActivation:
+    enabled: true
+    requireShadow: true
+  evaluation:
+    minSamples: 20
+    regressionWindow: 20
+  controlledEvals:
+    enabled: true
+    sandboxOnly: true
+    maxRunsPerCandidate: 5
+    maxTokensPerDay: 100000
+    maxCostPerDay: 0.50
+  interactionLearning:
+    authorityProposalMinApprovals: 15
+    authorityProposalMaxRejections: 0
+    rejectionSuppressionRuns: 5
+  maintenance:
+    incremental: true
+    fullCompileAfterNewTraces: 20
+knowledge:
+  retrieval:
+    maxRecords: 8
+    maxEstimatedTokens: 2500
+  budgets:
+    maxActiveRecords: 500
+    maxRecordTokens: 800
+    maxIndexTokens: 4000
+  retention:
+    rawTracesDays: 90
+    failedTracesDays: 180
+    promotedEvidence: keep
+control:
+  actions:
+    controlledEvaluation: autonomous
+    controlledEvaluationBudgetOverride: assisted
