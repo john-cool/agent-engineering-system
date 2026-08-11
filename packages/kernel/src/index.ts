@@ -26,6 +26,8 @@ export * from './evaluation-engine.js';
 export * from './policy-overlay-engine.js';
 export * from './shadow-evaluator.js';
 export * from './regression-monitor.js';
+export * from './knowledge-migration.js';
+export * from './knowledge-index.js';
 
 export * from './memory-store.js';
 
