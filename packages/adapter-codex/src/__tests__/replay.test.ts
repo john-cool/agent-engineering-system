@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { replayFixture, sanitizeRecordedProtocol } from '../testing/replay.js';
 
 test('protocol sanitizer removes content-bearing fields before fixture persistence', () => {
@@ -23,7 +23,7 @@ test('protocol sanitizer removes content-bearing fields before fixture persisten
 });
 
 test('sanitized JSONL fixture replays deterministic protocol records', async () => {
-  const path = join(process.cwd(), 'packages/adapter-codex/fixtures/session-basic.jsonl');
+  const path = fileURLToPath(new URL('../../fixtures/session-basic.jsonl', import.meta.url));
   const records: unknown[] = [];
   for await (const record of replayFixture(path)) records.push(record);
   assert.ok(records.length >= 2);
