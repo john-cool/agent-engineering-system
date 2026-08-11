@@ -18,6 +18,8 @@ export * from './context-engine.js';
 export * from './handoff-engine.js';
 
 export * from './experience-engine.js';
+export * from './experience-metrics.js';
+export * from './experience-miner.js';
 
 export * from './evaluation-gate.js';
 
