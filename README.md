@@ -4,6 +4,8 @@ AES is a vendor-neutral specification and TypeScript reference runtime for engin
 
 Milestone 3 adds a provider-neutral **Adaptive Runtime** and the first real provider implementation, **Codex App Server**, while preserving the rule that AES core/kernel never depends on a concrete model vendor.
 
+Milestone 4 adds typed knowledge, bounded adaptive learning, shadow evaluation, regression rollback, and scoped authority evidence. Learning is advisory: offline tests never require a live provider, and live Codex integration remains opt-in.
+
 ## Architecture
 
 ```text
