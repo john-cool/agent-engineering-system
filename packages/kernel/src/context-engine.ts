@@ -1,4 +1,5 @@
 import type {
+  ContextPreferenceEffect,
   ContextDecision,
   ContextFacts,
   ContextPressure,
@@ -6,7 +7,24 @@ import type {
 } from '@aes/spec';
 
 export class ContextEngine {
-  evaluate(facts: ContextFacts): ContextDecision {
+  evaluate(facts: ContextFacts, advice?: ContextPreferenceEffect): ContextDecision {
+    const base = this.evaluateBase(facts);
+    if (!advice || facts.activeDependsOnPriorEvidence) return base;
+    if (advice.preferCompactionBeforeHandoff && base.health === 'good') {
+      return {
+        ...base,
+        health: 'growing',
+        reasons: [...base.reasons, 'learned project preference favors earlier compaction'],
+        recommendations: ['compact']
+      };
+    }
+    if (advice.preferMemoryRetrieval) {
+      return { ...base, reasons: [...base.reasons, 'learned project preference favors selective memory retrieval'] };
+    }
+    return base;
+  }
+
+  private evaluateBase(facts: ContextFacts): ContextDecision {
     const pressure = this.pressure(facts);
     const relevance = this.relevance(facts);
     const reasons: string[] = [];

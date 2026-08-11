@@ -55,3 +55,20 @@ test('failed attempt alone does not escalate to powerful', () => {
   }, 'balanced');
   assert.equal(decision.modelClass, 'balanced');
 });
+
+test('learned model advice cannot lower a hard architectural requirement', () => {
+  const decision = router.route({
+    stage: 'planning', planStatus: 'draft', ambiguity: 'medium', risk: 'high', taskComplexity: 'complex',
+    confidence: 'high', failedAttempts: 0, architecturalDecisionRequired: true, evidenceSufficient: true, reasons: []
+  }, 'balanced', { kind: 'model_preference', prefer: 'cheap' });
+  assert.equal(decision.modelClass, 'powerful');
+});
+
+test('learned model advice changes only the soft execution preference', () => {
+  const decision = router.route({
+    stage: 'execution', planStatus: 'approved', ambiguity: 'low', risk: 'low', taskComplexity: 'standard',
+    confidence: 'high', failedAttempts: 0, architecturalDecisionRequired: false, evidenceSufficient: true, reasons: []
+  }, 'balanced', { kind: 'model_preference', prefer: 'balanced' });
+  assert.equal(decision.modelClass, 'balanced');
+  assert.ok(decision.reasons.some((reason) => reason.includes('learned')));
+});

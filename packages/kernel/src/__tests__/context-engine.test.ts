@@ -40,3 +40,12 @@ test('high pressure medium relevance recommends compaction rather than fresh cha
   assert.equal(result.health, 'growing');
   assert.ok(result.recommendations.includes('compact'));
 });
+
+test('learned context advice can prefer earlier compaction without overriding dependencies', () => {
+  const result = engine.evaluate({
+    completedTasks: 1, nextTaskIndependent: false, staleLogs: false, repeatedContent: false,
+    activeDependsOnPriorEvidence: false, handoffPossible: true
+  }, { kind: 'context_preference', preferCompactionBeforeHandoff: true });
+  assert.equal(result.health, 'growing');
+  assert.ok(result.reasons.some((reason) => reason.includes('learned')));
+});

@@ -1,4 +1,4 @@
-import type { Confidence } from '@aes/spec';
+import type { Confidence, InterruptionPreferenceEffect, InterruptionUrgency } from '@aes/spec';
 
 export interface InterruptionInput {
   controlOutcome: 'recommend' | 'request_approval' | 'execute' | 'blocked';
@@ -11,6 +11,7 @@ export interface InterruptionInput {
 
 export interface InterruptionDecision {
   interrupt: boolean;
+  urgency: InterruptionUrgency;
   reasons: string[];
 }
 
@@ -20,7 +21,7 @@ export interface ApprovalDigest {
 }
 
 export class InterruptionPolicy {
-  evaluate(input: InterruptionInput): InterruptionDecision {
+  evaluate(input: InterruptionInput, advice?: InterruptionPreferenceEffect): InterruptionDecision {
     const reasons: string[] = [];
     if (input.authorityIncrease) reasons.push('new authority requires user consent');
     if (input.durableConflict) reasons.push('durable knowledge conflict requires judgment');
@@ -28,7 +29,18 @@ export class InterruptionPolicy {
     if (input.controlOutcome === 'request_approval') reasons.push('assisted action requires approval');
     if (input.controlOutcome === 'recommend') reasons.push('recommendation requires user action');
     if (input.confidence === 'low' && input.impact === 'high') reasons.push('low confidence high impact');
-    return { interrupt: reasons.length > 0, reasons };
+    const hardBlocker = reasons.length > 0;
+    if (hardBlocker) return { interrupt: true, urgency: 'immediate', reasons };
+    if (input.controlOutcome === 'request_approval') {
+      return { interrupt: true, urgency: 'boundary', reasons: ['assisted action requires approval'] };
+    }
+    if (input.controlOutcome === 'recommend') {
+      if (advice?.suppressRoutinePrompt) {
+        return { interrupt: false, urgency: advice.schedule ?? 'digest', reasons: ['learned routine prompt suppression'] };
+      }
+      return { interrupt: true, urgency: advice?.schedule ?? 'boundary', reasons: ['recommendation requires user action'] };
+    }
+    return { interrupt: false, urgency: 'digest', reasons: [] };
   }
 
   group(items: readonly { id: string; summary: string }[]): ApprovalDigest {

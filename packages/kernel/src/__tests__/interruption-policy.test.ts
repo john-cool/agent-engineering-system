@@ -44,3 +44,12 @@ test('manual recommendation is surfaced to the user', () => {
   assert.equal(result.interrupt, true);
   assert.ok(result.reasons.includes('recommendation requires user action'));
 });
+
+test('learned routine suppression cannot suppress hard blockers', () => {
+  const result = policy.evaluate({
+    controlOutcome: 'recommend', confidence: 'high', impact: 'medium', authorityIncrease: true,
+    capabilityFailure: false, durableConflict: false
+  }, { kind: 'interruption_preference', suppressRoutinePrompt: true });
+  assert.equal(result.interrupt, true);
+  assert.equal(result.urgency, 'immediate');
+});

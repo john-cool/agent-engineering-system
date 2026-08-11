@@ -1,9 +1,9 @@
-import type { ModelClass, ModelDecision, TaskAnalysis } from '@aes/spec';
+import type { ModelClass, ModelDecision, ModelPreferenceEffect, TaskAnalysis } from '@aes/spec';
 
 const MODEL_RANK: Record<ModelClass, number> = { cheap: 0, balanced: 1, powerful: 2 };
 
 export class ModelRouter {
-  route(analysis: TaskAnalysis, current: ModelClass = 'balanced'): ModelDecision {
+  route(analysis: TaskAnalysis, current: ModelClass = 'balanced', advice?: ModelPreferenceEffect): ModelDecision {
     let target: ModelClass = 'balanced';
     const reasons: string[] = [];
 
@@ -29,6 +29,13 @@ export class ModelRouter {
     } else {
       target = 'balanced';
       reasons.push('balanced is the default sufficient capability class');
+    }
+
+    const hardRequiresPowerful = analysis.stage === 'planning' &&
+      analysis.architecturalDecisionRequired && analysis.evidenceSufficient;
+    if (advice && !hardRequiresPowerful) {
+      target = advice.prefer;
+      reasons.push(`learned project preference suggests ${advice.prefer}`);
     }
 
     const transition = MODEL_RANK[target] > MODEL_RANK[current]
