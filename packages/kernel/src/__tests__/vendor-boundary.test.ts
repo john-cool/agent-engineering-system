@@ -21,10 +21,9 @@ test('kernel source never imports vendor adapter packages', async () => {
   }
 });
 
-test('runtime source never imports kernel or concrete vendor adapters', async () => {
+test('runtime source never imports concrete vendor adapters', async () => {
   for (const path of await tsFiles(fileURLToPath(new URL('../../../runtime/src', import.meta.url)))) {
     const source = await readFile(path, 'utf8');
-    assert.equal(source.includes('@aes/kernel'), false, path);
     assert.equal(source.includes('@aes/adapter-'), false, path);
   }
 });

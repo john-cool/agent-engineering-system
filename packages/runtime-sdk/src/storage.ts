@@ -1,4 +1,5 @@
 import type { RuntimeOutcome, RuntimeVerification } from '@aes/spec';
+import type { KnowledgePacket, KnowledgeQuery, KnowledgeRecord } from '@aes/spec';
 import type { SessionCheckpoint } from './session.js';
 import type { RuntimeDecisionTrace } from './telemetry.js';
 
@@ -42,5 +43,15 @@ export interface KnowledgeStore<TMetadata = unknown> {
   initialize(): Promise<void>;
   searchKnowledge(query: string, limit?: number): Promise<KnowledgeSearchResult<TMetadata>[]>;
   writeKnowledge(path: string, content: string, metadata: TMetadata): Promise<void>;
+  appendLog(message: string): Promise<void>;
+}
+
+export interface TypedKnowledgeStore {
+  initialize(): Promise<void>;
+  putRecord(record: KnowledgeRecord): Promise<void>;
+  getRecord(id: string): Promise<KnowledgeRecord | undefined>;
+  listRecords(): Promise<KnowledgeRecord[]>;
+  queryKnowledge(query: KnowledgeQuery): Promise<KnowledgePacket>;
+  rebuildIndexes(): Promise<void>;
   appendLog(message: string): Promise<void>;
 }

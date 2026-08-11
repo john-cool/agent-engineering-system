@@ -18,5 +18,6 @@ export * from './observability.js';
 export * from './telemetry.js';
 export * from './pricing.js';
 export * from './storage.js';
+export * from './learning.js';
 
 export * from './resources.js';

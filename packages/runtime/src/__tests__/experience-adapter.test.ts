@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { toExperienceEvidence } from '../experience-adapter.js';
+import { toExperienceEvidence, toLearningEvidence } from '../experience-adapter.js';
 import { sampleTrace } from './fixtures.js';
 
 test('provider crash is excluded from model-quality success statistics', () => {
@@ -27,4 +27,18 @@ test('verified successful runtime trace becomes attributable compact evidence wi
     providerRecoveries: 0,
     durationMs: 10
   });
+});
+
+test('runtime trace becomes normalized learning evidence without inventing missing telemetry', () => {
+  const trace = sampleTrace();
+  const evidence = toLearningEvidence(trace, {
+    taskClass: 'Implementation', stage: 'execution', planStatus: 'approved', language: 'TypeScript'
+  });
+  assert.equal(evidence.signature.language, 'typescript');
+  assert.equal(evidence.modelClass, trace.resolution.selected.traits.qualityClass);
+  assert.equal(evidence.totalTokens,
+    trace.telemetry.inputTokens !== undefined && trace.telemetry.outputTokens !== undefined
+      ? trace.telemetry.inputTokens + trace.telemetry.outputTokens
+      : undefined);
+  assert.equal(evidence.qualityRegression, undefined);
 });

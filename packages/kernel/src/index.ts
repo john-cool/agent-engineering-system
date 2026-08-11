@@ -33,3 +33,4 @@ export * from './decision-trace.js';
 
 export * from './runtime-control-bridge.js';
 export * from './runtime-observation-sink.js';
+export * from './task-signature.js';
