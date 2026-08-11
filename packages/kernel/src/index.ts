@@ -25,6 +25,7 @@ export * from './evaluation-gate.js';
 export * from './evaluation-engine.js';
 export * from './policy-overlay-engine.js';
 export * from './shadow-evaluator.js';
+export * from './regression-monitor.js';
 
 export * from './memory-store.js';
 
