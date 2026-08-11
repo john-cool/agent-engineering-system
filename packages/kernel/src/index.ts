@@ -36,6 +36,8 @@ export * from './memory-lint.js';
 export * from './memory-maintenance.js';
 export * from './interruption-scheduler.js';
 export * from './rejection-suppression.js';
+export * from './evidence-acquisition-policy.js';
+export * from './controlled-evaluation-policy.js';
 
 export * from './memory-store.js';
 

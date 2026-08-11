@@ -1,0 +1,2 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import { ControlledEvaluationPolicy } from '../controlled-evaluation-policy.js';
+test('controlled evaluation runs only when expected value justifies cost', () => { const policy = new ControlledEvaluationPolicy({ minimumValueRatio: 2 }); assert.equal(policy.decide({ expectedReuse: 1000, savingPerUse: .10, actionableProbability: .5, evaluationCost: .50 }).run, true); assert.equal(policy.decide({ expectedReuse: 10, savingPerUse: .001, actionableProbability: .5, evaluationCost: 2 }).run, false); });

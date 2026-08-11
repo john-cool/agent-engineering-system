@@ -1,0 +1,1 @@
+export class EvidenceAcquisitionPolicy { choose(input: { naturalComparativeSufficient: boolean; replayAvailable: boolean; liveEligible: boolean }): 'natural' | 'replay' | 'controlled' | 'unresolved' { if (input.naturalComparativeSufficient) return 'natural'; if (input.replayAvailable) return 'replay'; if (input.liveEligible) return 'controlled'; return 'unresolved'; } }

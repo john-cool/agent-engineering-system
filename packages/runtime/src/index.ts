@@ -21,3 +21,5 @@ export * from './adaptive-runtime.js';
 
 export * from './experience-adapter.js';
 export * from './interaction-learning-coordinator.js';
+export * from './replay-evaluation-runner.js';
+export * from './controlled-evaluation-runner.js';
