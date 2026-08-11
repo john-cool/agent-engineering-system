@@ -20,3 +20,4 @@ export * from './recovery-coordinator.js';
 export * from './adaptive-runtime.js';
 
 export * from './experience-adapter.js';
+export * from './interaction-learning-coordinator.js';

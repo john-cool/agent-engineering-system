@@ -5,6 +5,8 @@ import type {
   ControlDecision,
   ControlMode
 } from '@aes/spec';
+import type { ScopedAuthorityGrant, TaskSignature } from '@aes/spec';
+import { matchesApplicability } from './task-signature.js';
 
 export interface ControlScopes {
   aes: ControlConfig;
@@ -12,6 +14,13 @@ export interface ControlScopes {
   project?: ControlConfig;
   session?: ControlConfig;
   explicit?: Partial<Record<ControlActionType, ControlMode>>;
+  authorityContext?: TaskSignature;
+  acceptedAuthority?: readonly ScopedAuthorityGrant[];
+}
+
+function matchingGrant(action: ControlActionType, scope: 'user' | 'project', context: TaskSignature | undefined, grants: readonly ScopedAuthorityGrant[] | undefined): ScopedAuthorityGrant | undefined {
+  if (!context || !grants) return undefined;
+  return grants.filter((grant) => grant.actionType === action && grant.scope === scope && matchesApplicability(context, grant.applicability)).sort((a, b) => Object.keys(b.applicability).length - Object.keys(a.applicability).length || b.updatedAt.localeCompare(a.updatedAt) || a.id.localeCompare(b.id))[0];
 }
 
 export class ControlEngine {
@@ -22,6 +31,8 @@ export class ControlEngine {
     let mode: ControlMode = scopes.aes.default;
     for (const config of configs) {
       mode = config.actions?.[action] ?? config.default;
+      const scope = config === scopes.user ? 'user' : config === scopes.project ? 'project' : undefined;
+      if (scope) mode = matchingGrant(action, scope, scopes.authorityContext, scopes.acceptedAuthority)?.mode ?? mode;
     }
     return scopes.explicit?.[action] ?? mode;
   }
