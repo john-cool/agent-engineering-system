@@ -182,6 +182,7 @@ class ChildProcessCodexLineIo implements CodexLineIo {
     this.child = spawn(command, args, {
       cwd: options.cwd,
       env: options.env,
+      shell: process.platform === 'win32' && command.toLowerCase().endsWith('.cmd'),
       stdio: ['pipe', 'pipe', 'pipe']
     });
   }

@@ -60,8 +60,8 @@ export class CodexProvider implements RuntimeProvider {
     const response = await transport.request('thread/start', {
       model: input.model.id,
       cwd: input.workspaceId,
-      approvalPolicy: 'onRequest',
-      sandbox: 'workspaceWrite',
+      approvalPolicy: 'on-request',
+      sandbox: 'workspace-write',
       serviceName: 'aes'
     });
     const providerSessionId = readThreadId(response);

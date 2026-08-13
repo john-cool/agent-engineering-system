@@ -66,6 +66,7 @@ export class ScriptedCodexTransport implements CodexTransport {
   private readonly serverRequestQueue = new AsyncQueue<CodexServerRequest>();
   private closed = false;
   readonly responses = new Map<string | number, unknown>();
+  readonly requests: Array<{ method: string; params: unknown }> = [];
 
   constructor(
     private readonly requestResults: ReadonlyMap<string, ScriptedRequestResult>,
@@ -74,8 +75,9 @@ export class ScriptedCodexTransport implements CodexTransport {
     private readonly crashAfterNotificationMethods: ReadonlySet<string>
   ) {}
 
-  async request(method: string, _params: unknown): Promise<unknown> {
+  async request(method: string, params: unknown): Promise<unknown> {
     if (this.closed) throw new Error('fake transport is closed');
+    this.requests.push({ method, params });
     const scripted = this.requestResults.get(method);
     if (!scripted) throw new Error(`no scripted response for ${method}`);
     if (scripted.error) throw scripted.error;

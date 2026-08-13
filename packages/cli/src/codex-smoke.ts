@@ -14,9 +14,27 @@ export interface CodexSmokeOptions {
   workspaceId?: string;
 }
 
-export async function findCodexBinary(): Promise<string | undefined> {
+type CodexExecFile = (
+  file: string,
+  args: string[],
+  options: { shell: boolean },
+  callback: (error: Error | null) => void
+) => void;
+
+export interface FindCodexBinaryOptions {
+  platform?: NodeJS.Platform;
+  execFile?: CodexExecFile;
+}
+
+export async function findCodexBinary(
+  options: FindCodexBinaryOptions = {}
+): Promise<string | undefined> {
+  const command = (options.platform ?? process.platform) === 'win32' ? 'codex.cmd' : 'codex';
+  const runExecFile: CodexExecFile = options.execFile ?? ((file, args, execOptions, callback) => {
+    execFile(file, args, execOptions, callback);
+  });
   return new Promise((resolve) => {
-    execFile('codex', ['--version'], (error) => resolve(error ? undefined : 'codex'));
+    runExecFile(command, ['--version'], { shell: command.endsWith('.cmd') }, (error) => resolve(error ? undefined : command));
   });
 }
 
