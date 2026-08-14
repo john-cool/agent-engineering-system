@@ -19,7 +19,12 @@ export interface CodexProviderOptions {
   transportFactory?: (workspaceId: string) => CodexTransport | Promise<CodexTransport>;
   modelCatalog?: Omit<CodexModelCatalogOptions, 'ttlMs'> & { ttlMs?: number };
   clientVersion?: string;
+  approvalPolicy?: CodexApprovalPolicy;
+  sandbox?: CodexSandbox;
 }
+
+export type CodexApprovalPolicy = 'on-request' | 'never';
+export type CodexSandbox = 'read-only' | 'workspace-write' | 'danger-full-access';
 
 export class CodexProvider implements RuntimeProvider {
   readonly id = 'codex';
@@ -60,8 +65,8 @@ export class CodexProvider implements RuntimeProvider {
     const response = await transport.request('thread/start', {
       model: input.model.id,
       cwd: input.workspaceId,
-      approvalPolicy: 'on-request',
-      sandbox: 'workspace-write',
+      approvalPolicy: this.options.approvalPolicy ?? 'on-request',
+      sandbox: this.options.sandbox ?? 'workspace-write',
       serviceName: 'aes'
     });
     const providerSessionId = readThreadId(response);

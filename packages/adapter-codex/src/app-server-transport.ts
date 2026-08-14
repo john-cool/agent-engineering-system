@@ -65,6 +65,11 @@ export interface CodexAppServerTransportOptions {
   env?: NodeJS.ProcessEnv;
 }
 
+export function codexCommandForPlatform(platform: NodeJS.Platform = process.platform): string {
+  return platform === 'win32' ? 'codex.cmd' : 'codex';
+}
+
+
 export class CodexAppServerTransport implements CodexTransport {
   private readonly io: CodexLineIo;
   private readonly notificationQueue = new AsyncQueue<unknown>();
@@ -177,7 +182,7 @@ class ChildProcessCodexLineIo implements CodexLineIo {
   private closed = false;
 
   constructor(options: CodexAppServerTransportOptions) {
-    const command = options.command ?? 'codex';
+    const command = options.command ?? codexCommandForPlatform();
     const args = options.args ?? ['app-server'];
     this.child = spawn(command, args, {
       cwd: options.cwd,

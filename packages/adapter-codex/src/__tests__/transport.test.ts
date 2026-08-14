@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CodexAppServerTransport, type CodexLineIo } from '../index.js';
+import { CodexAppServerTransport, codexCommandForPlatform, type CodexLineIo } from '../index.js';
 
 function createFakeLineIo(): CodexLineIo & { writes: string[]; pushLine(line: string): void } {
   const writes: string[] = [];
@@ -32,6 +32,11 @@ function createFakeLineIo(): CodexLineIo & { writes: string[]; pushLine(line: st
     }
   };
 }
+
+test('uses the Windows command shim for the default Codex process', () => {
+  assert.equal(codexCommandForPlatform('win32'), 'codex.cmd');
+  assert.equal(codexCommandForPlatform('linux'), 'codex');
+});
 
 async function nextValue<T>(source: AsyncIterable<T>): Promise<T> {
   const result = await source[Symbol.asyncIterator]().next();
