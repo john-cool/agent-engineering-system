@@ -1,29 +1,32 @@
 # AES Handoff — ChatGPT to Codex
 
-Date: 2026-08-09
-Status: Ready for Milestone 4 implementation
+Date: 2026-08-14
+Status: Milestone 4 implemented; ready for specification audit and maintenance
 
 ## Goal
 
-Continue development of **Agent Engineering Specification (AES)** in Codex by implementing the approved **Milestone 4 — Adaptive Learning & Knowledge Runtime** using the existing detailed TDD plan and Superpowers workflow.
+Continue development of **Agent Engineering Specification (AES)** in Codex by auditing and maintaining the implemented **Milestone 4 — Adaptive Learning & Knowledge Runtime** against the approved design, implementation plan, and Definition of Done.
 
 AES is a provider-neutral engineering-agent runtime/specification. Its objective is to preserve verified quality while minimizing total cost, tokens, retries, latency, and unnecessary user interruptions.
 
 ## Current State
 
-Milestones 1–3 are implemented in this snapshot.
+Milestones 1–4 are implemented in this snapshot.
 
 Milestone 3 includes the provider-neutral Adaptive Runtime, runtime/provider contracts, model resolution, resource governance, trace/telemetry storage, recovery/circuit-breaker behavior, a Codex App Server adapter boundary, fake/replay/chaos harnesses, and an opt-in live Codex smoke path.
 
-A fresh transition baseline on 2026-08-09 passed **162/162 offline tests with 0 failures**, and `aes validate examples/workflow.yaml` returned `valid Workflow: engineering-default`.
+A fresh baseline on 2026-08-14 passed **223/223 offline tests with 0 failures**. The canonical build/typecheck command also passed:
+`corepack pnpm@10.14.0 -r --sort build`.
 
-The ChatGPT sandbox did not have `pnpm` installed and could not fetch packages from the registry. Verification therefore used the already-installed Node 22.16.0 / TypeScript 5.8.3 toolchain plus temporary local workspace symlinks; no production source was changed for this workaround. Codex should run the canonical pnpm-based baseline in its own environment before M4 implementation.
+The verified toolchain is Node.js `v24.19.0` and pnpm `10.14.0` (Node.js `>=22` is required). `pnpm install` was needed to restore workspace links in the local environment; it produced an untracked root `pnpm-lock.yaml`, which has intentionally not been committed.
 
-The live Codex smoke was not verified in the earlier ChatGPT sandbox because the `codex` binary was unavailable there. Codex should run the opt-in live smoke when its environment supports it.
+The current main baseline contains the M4 implementation evidence in commits `97b5ea4`, `0ef785f`, `246f57a`, `66561a8`, `4e54fcd`, `b9f1099`, `ac61ebe`, `0811a7c`, `d865c46`, `5a25a4f`, `2e9f8d9`, `f54121b`, `1bbc04f`, `3a4aea2`, and `7300403`.
+
+The live Codex path remains opt-in. A manual read-only real-task run succeeded in the isolated worktree, while the automated live smoke has had intermittent failures; do not treat live execution as green without a fresh successful run.
 
 Milestone 4 architecture has been discussed in depth and explicitly approved by the user.
 
-Milestone 4 implementation has **not** started.
+Milestone 4 implementation is complete in the current main baseline. The next action is a bounded audit against the approved specification and Definition of Done; any follow-up implementation must be evidence-backed.
 
 ## Canonical Files
 

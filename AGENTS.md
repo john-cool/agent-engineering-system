@@ -8,14 +8,22 @@ Preserve verified quality first. Optimize cost only after required quality and s
 
 ## Current Project State
 
-- Milestones 1–3 are implemented.
-- Milestone 4 design is approved.
-- Milestone 4 implementation has NOT started.
+- Milestones 1–4 are implemented in the current `main` baseline.
+- Milestone 4 design is approved, and the implementation evidence is present through the adaptive lifecycle, configuration, and documentation commits.
+- Current work is verification/audit and maintenance; do not restart Milestone 4 implementation from the beginning.
 - Primary M4 spec:
   `docs/superpowers/specs/2026-08-09-aes-milestone-4-adaptive-learning-knowledge-design.md`
 - Primary M4 implementation plan:
   `docs/superpowers/plans/2026-08-09-aes-milestone-4-adaptive-learning-knowledge.md`
 - Read `HANDOFF.md` before starting M4 work.
+
+### Current verification baseline
+
+- Node.js `v24.19.0` satisfies the project requirement of `>=22`.
+- `corepack pnpm@10.14.0 --version` reports `10.14.0`.
+- `corepack pnpm@10.14.0 -r --sort build` passes.
+- `corepack pnpm@10.14.0 -r test` passes: **223/223 offline tests**.
+- Live Codex execution remains opt-in and must be freshly verified before claiming it is green; prior smoke results were intermittent.
 
 ## Required Workflow
 
@@ -33,6 +41,8 @@ For implementation work:
 
 Do not redesign approved architecture during execution unless evidence invalidates the plan.
 If architecture is invalidated, stop execution, document the evidence, and return to planning.
+
+For post-M4 work, audit the approved spec and Definition of Done first. Implement only evidence-backed gaps or maintenance changes.
 
 ## Golden Loop
 
