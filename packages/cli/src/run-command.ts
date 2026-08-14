@@ -12,10 +12,28 @@ import {
   WorkspaceRuntimeSupervisor
 } from '@aes/runtime';
 
+export const DEFAULT_RUN_TIMEOUT_MS = 300_000;
+
+export type RunProgressStage =
+  | 'starting'
+  | 'model_selected'
+  | 'turn_started'
+  | 'tool_requested'
+  | 'approval_requested'
+  | 'completed'
+  | 'failed';
+
+export interface RunProgressEvent {
+  stage: RunProgressStage;
+  message: string;
+}
+
 export interface RunTaskOptions {
   workspaceId?: string;
   providerFactory?: (workspaceId: string) => Promise<RuntimeProvider>;
   readOnly?: boolean;
+  timeoutMs?: number;
+  onProgress?: (event: RunProgressEvent) => void;
 }
 
 export interface ParsedRunArguments {
@@ -42,9 +60,23 @@ export async function runTask(task: string, options: RunTaskOptions = {}): Promi
   const text = task.trim();
   if (!text) throw new Error('task must not be empty');
 
+  const timeoutMs = options.timeoutMs ?? DEFAULT_RUN_TIMEOUT_MS;
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    throw new Error('timeoutMs must be a positive finite number');
+  }
+
   const workspaceId = options.workspaceId ?? process.cwd();
   const traceStore = new InMemoryTraceStore();
   const output: string[] = [];
+  let cleanupStarted = false;
+  const emitProgress = (event: RunProgressEvent): void => {
+    try {
+      options.onProgress?.(event);
+    } catch {
+      // Progress is observational and must not change task execution.
+    }
+  };
+  emitProgress({ stage: 'starting', message: 'task accepted' });
   const supervisor = new WorkspaceRuntimeSupervisor({
     providerFactory: options.providerFactory ?? (async (workspace) => new CodexProvider({
       workspaceId: workspace,
@@ -68,7 +100,7 @@ export async function runTask(task: string, options: RunTaskOptions = {}): Promi
   });
 
   const turnId = `turn:${Date.now()}`;
-  try {
+  const execute = async (): Promise<RunTaskResult> => {
     const result = await runtime.execute({
       workspaceId,
       taskId: `cli-run:${Date.now()}`,
@@ -82,10 +114,18 @@ export async function runTask(task: string, options: RunTaskOptions = {}): Promi
       turn: { turnId, input: { kind: 'text', text } },
       onEvent(event) {
         if (event.type === 'output_delta') output.push(event.data.text);
+        if (event.type === 'turn_started') emitProgress({ stage: 'turn_started', message: 'provider turn started' });
+        if (event.type === 'tool_requested') emitProgress({ stage: 'tool_requested', message: `tool requested: ${event.toolName}` });
+        if (event.type === 'approval_requested') emitProgress({ stage: 'approval_requested', message: 'provider approval requested' });
       }
     });
 
     const trace = result.trace;
+    emitProgress({
+      stage: 'model_selected',
+      message: `model selected: ${trace?.telemetry.model ?? result.resolution?.selected.id ?? 'unknown'}`
+    });
+    emitProgress({ stage: 'completed', message: `task completed: ${result.outcome}` });
     return {
       output: output.join(''),
       outcome: result.outcome,
@@ -93,8 +133,28 @@ export async function runTask(task: string, options: RunTaskOptions = {}): Promi
       provider: trace?.telemetry.provider ?? 'unknown',
       model: trace?.telemetry.model ?? result.resolution?.selected.id ?? 'unknown'
     };
+  };
+
+  try {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(async () => {
+        cleanupStarted = true;
+        emitProgress({ stage: 'failed', message: `task timed out after ${timeoutMs} ms` });
+        await supervisor.shutdownAll();
+        reject(new Error(`task timed out after ${timeoutMs} ms`));
+      }, timeoutMs);
+    });
+    try {
+      return await Promise.race([execute(), timeout]);
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+    }
   } finally {
-    await supervisor.shutdownAll();
+    if (!cleanupStarted) {
+      cleanupStarted = true;
+      await supervisor.shutdownAll();
+    }
   }
 }
 
@@ -107,4 +167,8 @@ export function formatRunSummary(result: RunTaskResult): string {
     `Outcome: ${result.outcome}`,
     `Verification: ${result.verification}`
   ].join('\n');
+}
+
+export function formatRunProgress(event: RunProgressEvent): string {
+  return `[aes] ${event.stage}: ${event.message}`;
 }

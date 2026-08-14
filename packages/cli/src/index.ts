@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 import { validateFile } from './validate-command.js';
 import { formatDemoSummary, runDemo } from './demo-command.js';
-import { formatRunSummary, parseRunArguments, runTask } from './run-command.js';
+import { formatRunProgress, formatRunSummary, parseRunArguments, runTask } from './run-command.js';
 
 async function main(argv: readonly string[]): Promise<void> {
   const [command, ...commandArguments] = argv;
   if (command === 'run') {
     try {
       const parsed = parseRunArguments(commandArguments);
-      const result = await runTask(parsed.task, { readOnly: parsed.readOnly });
+      const result = await runTask(parsed.task, {
+        readOnly: parsed.readOnly,
+        onProgress: (event) => console.error(formatRunProgress(event))
+      });
       console.log(formatRunSummary(result));
       if (result.outcome !== 'success' && result.outcome !== 'recovered' || result.verification === 'failed') {
         process.exitCode = 1;

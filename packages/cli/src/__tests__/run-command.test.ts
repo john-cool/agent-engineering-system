@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createInMemoryProvider } from '@aes/runtime-sdk/testing';
 import type { RuntimeProvider, RuntimeTurnRequest } from '@aes/runtime-sdk';
-import { parseRunArguments, runTask } from '../run-command.js';
+import { formatRunProgress, parseRunArguments, runTask } from '../run-command.js';
 
 test('parses the read-only run mode', () => {
   assert.deepEqual(parseRunArguments(['--read-only', 'analyze repository']), {
@@ -11,10 +11,18 @@ test('parses the read-only run mode', () => {
   });
 });
 
+test('formats progress without exposing task content', () => {
+  assert.equal(
+    formatRunProgress({ stage: 'starting', message: 'task accepted' }),
+    '[aes] starting: task accepted'
+  );
+});
+
 test('runTask sends the user task through the runtime provider', async () => {
   const base = createInMemoryProvider();
   let observedTurn: RuntimeTurnRequest | undefined;
   let providerShutdown = false;
+  const progress: string[] = [];
   const provider: RuntimeProvider = {
     ...base,
     async shutdown() {
@@ -35,7 +43,8 @@ test('runTask sends the user task through the runtime provider', async () => {
 
   const result = await runTask('inspect repository', {
     workspaceId: '/test',
-    providerFactory: async () => provider
+    providerFactory: async () => provider,
+    onProgress: (event) => progress.push(event.stage)
   });
 
   assert.deepEqual(observedTurn?.input, { kind: 'text', text: 'inspect repository' });
@@ -43,6 +52,25 @@ test('runTask sends the user task through the runtime provider', async () => {
   assert.equal(result.outcome, 'success');
   assert.equal(result.verification, 'passed');
   assert.equal(providerShutdown, true);
+  assert.deepEqual(progress, ['starting', 'turn_started', 'model_selected', 'completed']);
+});
+
+test('runTask rejects invalid timeout values before creating a provider', async () => {
+  let providerCreated = false;
+  const providerFactory = async () => {
+    providerCreated = true;
+    return createInMemoryProvider();
+  };
+
+  await assert.rejects(
+    () => runTask('inspect repository', { timeoutMs: 0, providerFactory }),
+    /timeoutMs must be a positive finite number/
+  );
+  await assert.rejects(
+    () => runTask('inspect repository', { timeoutMs: -1, providerFactory }),
+    /timeoutMs must be a positive finite number/
+  );
+  assert.equal(providerCreated, false);
 });
 
 test('runTask rejects an empty task before creating a provider', async () => {
@@ -147,4 +175,38 @@ test('read-only run approves provider tool requests inside the read-only sandbox
 
   assert.equal(approved, true);
   assert.equal(result.outcome, 'success');
+});
+
+test('runTask times out a stalled provider and shuts it down', async () => {
+  const base = createInMemoryProvider();
+  let providerShutdown = 0;
+  const provider: RuntimeProvider = {
+    ...base,
+    async shutdown() {
+      providerShutdown += 1;
+      await base.shutdown();
+    },
+    async createSession(input) {
+      const session = await base.createSession(input);
+      return {
+        ...session,
+        async *runTurn() {
+          await new Promise<void>(() => undefined);
+        }
+      };
+    }
+  };
+  const progress: string[] = [];
+
+  await assert.rejects(
+    () => runTask('inspect repository', {
+      timeoutMs: 10,
+      providerFactory: async () => provider,
+      onProgress: (event) => progress.push(event.stage)
+    }),
+    /task timed out after 10 ms/
+  );
+
+  assert.equal(providerShutdown, 1);
+  assert.deepEqual(progress, ['starting', 'failed']);
 });
