@@ -109,6 +109,7 @@ The main packages are:
 - [Events](reference/events.md)
 - [Schemas](reference/schemas.md)
 - [Write a provider adapter](guides/write-an-adapter.md)
+- [Run a real task](guides/real-task-runner.md)
 
 ### Operations and safety
 

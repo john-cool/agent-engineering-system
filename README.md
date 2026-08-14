@@ -59,7 +59,7 @@ The kernel never contains concrete vendor model names. AES routes capability cla
 - `@aes/runtime-sdk` — provider-neutral provider/session/event/telemetry/storage/control contracts plus provider contract-test utilities.
 - `@aes/runtime` — adaptive orchestration: model resolution, resource policy enforcement, workspace provider supervision, bounded recovery, checkpoints, trace persistence, and experience conversion.
 - `@aes/adapter-codex` — the first concrete provider implementation, backed by Codex App Server. It is an edge adapter, not part of AES core architecture.
-- `@aes/cli` — document validation plus opt-in live Codex smoke-test composition.
+- `@aes/cli` — workflow validation, an offline demo, a bounded real-task runner, and opt-in live Codex smoke-test composition.
 
 Future providers can implement the same `RuntimeProvider` / `RuntimeSession` contracts without changing the kernel, for example Claude Code, Gemini, or Cursor adapters.
 
@@ -160,6 +160,20 @@ pnpm typecheck
 pnpm test
 pnpm build
 ```
+
+Run the offline demo after building:
+
+```bash
+node packages/cli/dist/index.js demo
+```
+
+Run a real Codex-backed task in the safest inspection mode:
+
+```bash
+node packages/cli/dist/index.js run --read-only "inspect the top-level folders"
+```
+
+The real-task runner reports progress on stderr, keeps the final summary on stdout, and stops after a bounded five-minute timeout. See the [real task runner guide](docs/guides/real-task-runner.md) for writable-mode behavior and safety rules.
 
 The reference implementation itself keeps the default test suite offline and deterministic.
 

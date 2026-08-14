@@ -1,6 +1,8 @@
 # AES Milestone 4 — Adaptive Learning & Knowledge Runtime Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans for any evidence-backed follow-up task. Steps use checkbox (`- [ ]`) syntax for tracking; completed implementation work is recorded in Git history.
+
+**Status (2026-08-14):** The implementation tasks are present in the current `main` baseline through the adaptive lifecycle, configuration, and documentation commits. This document is now the audit and verification checklist; do not reimplement completed tasks. The next action is a bounded audit against the approved design and Definition of Done.
 
 **Goal:** Close AES's learning loop so verified runtime evidence can create, validate, shadow, activate, explain, monitor, and safely roll back reversible project-local learning while typed knowledge and user authority remain bounded, inspectable, and privacy-safe.
 
